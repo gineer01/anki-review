@@ -10,16 +10,63 @@ var cards = (function(){
         chooseRandom : function(){
             var randInt = Math.floor((Math.random() * cards.length));
             return cards[randInt];
+        },
+        getCount: function(){
+            return cards.length;
         }
     };
 })();
 
+var INIT = 0, READY = 1, FRONT = 2, BACK = 3;
+
+var InnerReviewBox = React.createClass({
+    render: function(){
+        switch (this.props.stage){
+            case INIT:
+                return (<div>Loading cards...</div>);
+            case READY:
+                return (<div>
+                    There are {cards.getCount()} card(s).
+                    <button onClick={this.props.reviewHandler}> Review </button>
+                </div>)
+            case FRONT:
+                var card = this.props.card;
+                return (
+                    <div>
+                        <FrontSide front={card.front}/>
+                        <button onClick={this.props.showHandler}> Show </button>
+                    </div>
+                );
+            case BACK:
+                var card = this.props.card;
+                return (
+                    <div>
+                        <FrontSide front={card.front}/>
+                        <BackSide front={card.front} back={card.back}/>
+                        <Buttons handleCard={this.props.reviewHandler}/>
+                    </div>
+                );
+        }
+    }
+});
+
 var ReviewBox = React.createClass({
     getInitialState: function() {
-        return {"currentCard": {}};
+        return {
+            "currentCard": {},
+            "stage" : INIT
+        };
     },
     getNewCard: function(){
-        this.setState({"currentCard" : cards.chooseRandom()});
+        this.setState({
+            "currentCard" : cards.chooseRandom(),
+            "stage" : FRONT
+        });
+    },
+    showCard: function(){
+        this.setState({
+            "stage" : BACK
+        });
     },
     componentDidMount: function() {
         $.ajax({
@@ -28,6 +75,9 @@ var ReviewBox = React.createClass({
             cache: false,
             success: function(data) {
                 cards.initCards(data);
+                this.setState({
+                    "stage" : READY
+                })
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
@@ -35,25 +85,17 @@ var ReviewBox = React.createClass({
         });
     },
     render: function () {
-        var cardDisplay = (function(card) {
-            return (
-                <div>
-                    <FrontSide front={card.front}/>
-                    <BackSide front={card.front} back={card.back}/>
-                </div>
-            );
-        });
-        var card = cardDisplay(this.state.currentCard);
-
         return (
             <div className="reviewBox">
-                Review box
-                {card}
-                <Buttons handleCard={this.getNewCard}/>
+                <InnerReviewBox stage={this.state.stage} card={this.state.currentCard}
+                reviewHandler={this.getNewCard}
+                showHandler={this.showCard}/>
             </div>
         );
     }
 });
+
+
 
 var FrontSide = React.createClass({
     render: function () {
