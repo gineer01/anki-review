@@ -1,5 +1,5 @@
 var cards = (function(){
-    var cards, easy, hard;
+    var cards = [], easy = [], hard = [];
     return {
         initCards : function(data){
             for (var i = 0; i < data.length; i++){
@@ -13,39 +13,55 @@ var cards = (function(){
         },
         getCount: function(){
             return cards.length;
+        },
+        markCard: function(card, choice){
+            switch (choice){
+                case EASY:
+                    cards.splice(card.num, 1);
+                    easy.push(card);
+                case HARD:
+                    hard.push(card);
+            }
         }
     };
 })();
 
-var INIT = 0, READY = 1, FRONT = 2, BACK = 3;
+var INIT = 0, READY = 1, FRONT = 2, BACK = 3, DONE = 4;
+var EASY = 0, HARD = 1;
 
 var InnerReviewBox = React.createClass({
     render: function(){
         switch (this.props.stage){
             case INIT:
                 return (<div>Loading cards...</div>);
+
             case READY:
                 return (<div>
                     There are {cards.getCount()} card(s).
-                    <button onClick={this.props.reviewHandler}> Review </button>
-                </div>)
+                    <button onClick={this.props.handlers.reviewHandler}> Review </button>
+                </div>);
+
             case FRONT:
                 var card = this.props.card;
                 return (
                     <div>
                         <FrontSide front={card.front}/>
-                        <button onClick={this.props.showHandler}> Show </button>
+                        <button onClick={this.props.handlers.showHandler}> Show </button>
                     </div>
                 );
+
             case BACK:
                 var card = this.props.card;
                 return (
                     <div>
                         <FrontSide front={card.front}/>
                         <BackSide front={card.front} back={card.back}/>
-                        <Buttons handleCard={this.props.reviewHandler}/>
+                        <Buttons handleCard={this.props.handlers.submitHandler}/>
                     </div>
                 );
+
+            case DONE:
+                return(<div>You completed the review</div>);
         }
     }
 });
@@ -58,15 +74,26 @@ var ReviewBox = React.createClass({
         };
     },
     getNewCard: function(){
-        this.setState({
-            "currentCard" : cards.chooseRandom(),
-            "stage" : FRONT
-        });
+        if (cards.getCount() > 0){
+            this.setState({
+                "currentCard" : cards.chooseRandom(),
+                "stage" : FRONT
+            });
+        }
+        else {
+            this.setState({
+                "stage" : DONE
+            });
+        }
     },
     showCard: function(){
         this.setState({
             "stage" : BACK
         });
+    },
+    submitChoice: function(choice){
+        cards.markCard(this.state.currentCard, choice);
+        this.getNewCard();
     },
     componentDidMount: function() {
         $.ajax({
@@ -85,11 +112,15 @@ var ReviewBox = React.createClass({
         });
     },
     render: function () {
+        var handlers = {
+            "reviewHandler" : this.getNewCard,
+            "showHandler" : this.showCard,
+            "submitHandler" : this.submitChoice
+        }
         return (
             <div className="reviewBox">
                 <InnerReviewBox stage={this.state.stage} card={this.state.currentCard}
-                reviewHandler={this.getNewCard}
-                showHandler={this.showCard}/>
+                handlers={handlers}/>
             </div>
         );
     }
@@ -121,7 +152,8 @@ var Buttons = React.createClass({
     render: function () {
         return (
             <div className="buttons">
-                <button onClick={this.props.handleCard}>New card</button>
+                <button onClick={ () => {this.props.handleCard(EASY)} }>Easy</button>
+                <button onClick={ () => {this.props.handleCard(HARD)} }>Hard</button>
             </div>
         );
     }
