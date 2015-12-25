@@ -29,42 +29,52 @@ var cards = (function(){
     };
 })();
 
-var INIT = 0, READY = 1, FRONT = 2, BACK = 3, DONE = 4;
+var INIT = 0, READY = 1, FRONT = 2, BACK = 3, DONE = 4, ERROR = 5;
 var EASY = 0, AGAIN = 2, HARD = 1;
 
 var InnerReviewBox = React.createClass({
     render: function(){
         switch (this.props.stage){
             case INIT:
-                return (<div>Loading cards...</div>);
+                return (<div className="alert alert-info">Loading cards...</div>);
 
             case READY:
                 return (<div>
-                    There are {cards.getCount()} card(s).
-                    <button onClick={this.props.handlers.reviewHandler}> Review </button>
+                    <div className="alert alert-info">There are {cards.getCount()} card(s).</div>
+                    <button className="btn btn-primary btn-block btn-lg" onClick={this.props.handlers.reviewHandler}> Review </button>
                 </div>);
 
             case FRONT:
                 var card = this.props.card;
                 return (
-                    <div>
-                        <FrontSide front={card.front}/>
-                        <button onClick={this.props.handlers.showHandler}> Show </button>
+                    <div className="panel panel-info">
+                        <div className="panel-body">
+                            <FrontSide front={card.front}/>
+                        </div>
+                        <div className="panel-footer">
+                            <button className="btn btn-primary btn-block btn-lg" onClick={this.props.handlers.showHandler}> Show </button>
+                        </div>
                     </div>
                 );
 
             case BACK:
                 var card = this.props.card;
                 return (
-                    <div>
-                        <FrontSide front={card.front}/>
-                        <BackSide front={card.front} back={card.back}/>
-                        <Buttons handleCard={this.props.handlers.submitHandler}/>
+                    <div className="panel panel-info">
+                        <div className="panel-heading">
+                            <FrontSide front={card.front}/>
+                        </div>
+                        <div className="panel-body">
+                            <BackSide front={card.front} back={card.back}/>
+                        </div>
+                        <div className="panel-footer">
+                            <Buttons handleCard={this.props.handlers.submitHandler}/>
+                        </div>
                     </div>
                 );
 
             case DONE:
-                return(<div>You completed the review</div>);
+                return(<div className="alert alert-success">You completed the review</div>);
         }
     }
 });
@@ -98,6 +108,7 @@ var ReviewBox = React.createClass({
         cards.markCard(this.state.currentCard, choice);
         this.getNewCard();
     },
+
     componentDidMount: function() {
         $.ajax({
             url: this.props.url,
@@ -111,14 +122,22 @@ var ReviewBox = React.createClass({
             }.bind(this),
             error: function(xhr, status, err) {
                 console.error(this.props.url, status, err.toString());
+                this.setState({
+                    "stage" : ERROR,
+                    "message" : "Error loading data"
+                })
             }.bind(this)
         });
     },
+
     render: function () {
+        if (this.state.stage == ERROR){
+            return (<div className="alert alert-danger">{this.state.message}</div>)
+        }
         var handlers = {
-            "reviewHandler" : this.getNewCard,
-            "showHandler" : this.showCard,
-            "submitHandler" : this.submitChoice
+            "reviewHandler": this.getNewCard,
+            "showHandler": this.showCard,
+            "submitHandler": this.submitChoice
         }
         return (
             <div className="reviewBox">
@@ -135,7 +154,7 @@ var FrontSide = React.createClass({
     render: function () {
         return (
             <div className="frontSide">
-                {this.props.front}
+                <h1>{this.props.front}</h1>
             </div>
         );
     }
@@ -154,10 +173,10 @@ var BackSide = React.createClass({
 var Buttons = React.createClass({
     render: function () {
         return (
-            <div className="buttons">
-                <button onClick={ () => {this.props.handleCard(EASY)} }>Easy</button>
-                <button onClick={ () => {this.props.handleCard(AGAIN)} }>Again</button>
-                <button onClick={ () => {this.props.handleCard(HARD)} }>Hard</button>
+            <div className="buttons row">
+                <button type="button" className="btn btn-success btn-lg col-xs-4" onClick={ () => {this.props.handleCard(EASY)} }>Easy</button>
+                <button type="button" className="btn btn-primary btn-lg col-xs-4" onClick={ () => {this.props.handleCard(AGAIN)} }>Again</button>
+                <button type="button" className="btn btn-warning btn-lg col-xs-4" onClick={ () => {this.props.handleCard(HARD)} }>Hard</button>
             </div>
         );
     }
