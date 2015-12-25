@@ -1,33 +1,36 @@
 var cards = (function(){
-    var cards = [], easy = [], hard = [];
+    var cards = [], easy = {}, hard = {};
     return {
         initCards : function(data){
-            for (var i = 0; i < data.length; i++){
-                data["num"] = i;
-            }
             cards = data;
         },
         chooseRandom : function(){
             var randInt = Math.floor((Math.random() * cards.length));
-            return cards[randInt];
+            var card = cards[randInt];
+            card.num = randInt; //the position to remove later
+            return card;
         },
         getCount: function(){
             return cards.length;
         },
         markCard: function(card, choice){
             switch (choice){
-                case EASY:
+                case EASY: //remove the card
                     cards.splice(card.num, 1);
-                    easy.push(card);
-                case HARD:
-                    hard.push(card);
+                    easy[card.front] = card;
+
+                case AGAIN: //try again
+                    return;
+
+                case HARD: //saved to the Hard list
+                    hard[card.front] = card;
             }
         }
     };
 })();
 
 var INIT = 0, READY = 1, FRONT = 2, BACK = 3, DONE = 4;
-var EASY = 0, HARD = 1;
+var EASY = 0, AGAIN = 2, HARD = 1;
 
 var InnerReviewBox = React.createClass({
     render: function(){
@@ -153,6 +156,7 @@ var Buttons = React.createClass({
         return (
             <div className="buttons">
                 <button onClick={ () => {this.props.handleCard(EASY)} }>Easy</button>
+                <button onClick={ () => {this.props.handleCard(AGAIN)} }>Again</button>
                 <button onClick={ () => {this.props.handleCard(HARD)} }>Hard</button>
             </div>
         );
