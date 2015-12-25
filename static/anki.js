@@ -18,12 +18,14 @@ var cards = (function(){
                 case EASY: //remove the card
                     cards.splice(card.num, 1);
                     easy[card.front] = card;
+                    return;
 
                 case AGAIN: //try again
                     return;
 
                 case HARD: //saved to the Hard list
                     hard[card.front] = card;
+                    return;
             }
         }
     };
@@ -34,6 +36,8 @@ var EASY = 0, AGAIN = 2, HARD = 1;
 
 var InnerReviewBox = React.createClass({
     render: function(){
+        var card = this.props.card;
+
         switch (this.props.stage){
             case INIT:
                 return (<div className="alert alert-info">Loading cards...</div>);
@@ -45,7 +49,6 @@ var InnerReviewBox = React.createClass({
                 </div>);
 
             case FRONT:
-                var card = this.props.card;
                 return (
                     <div className="panel panel-info">
                         <div className="panel-body">
@@ -58,7 +61,6 @@ var InnerReviewBox = React.createClass({
                 );
 
             case BACK:
-                var card = this.props.card;
                 return (
                     <div className="panel panel-info">
                         <div className="panel-heading">
@@ -74,7 +76,7 @@ var InnerReviewBox = React.createClass({
                 );
 
             case DONE:
-                return(<div className="alert alert-success">You completed the review</div>);
+                return(<div className="alert alert-success">You have completed the review.</div>);
         }
     }
 });
