@@ -10,7 +10,7 @@ data = []
 ids = col.findCards('"deck:Chinese characters"')
 
 for id, flds in col.db.execute("""
-select guid, flds from notes
+select id, flds from notes
 where id in
 (select nid from cards
 where cards.id in %s)""" % ids2str(ids)):
@@ -18,6 +18,7 @@ where cards.id in %s)""" % ids2str(ids)):
 
     # fields
     fields = splitFields(flds)
+    item["id"] = str(id)
     item["front"] = fields[0]
     item["back"] = fields[1]
 
