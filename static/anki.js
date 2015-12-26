@@ -1,8 +1,10 @@
 var cards = (function(){
     var cards = [], easy = {}, hard = {};
+    var total = 0;
     return {
         initCards : function(data){
             cards = data;
+            total = data.length;
         },
         chooseRandom : function(){
             var randInt = Math.floor((Math.random() * cards.length));
@@ -13,6 +15,17 @@ var cards = (function(){
         getCount: function(){
             return cards.length;
         },
+
+        getTotal: function(){
+            return total;
+        },
+
+        getHardCards: function(){
+            return Object.keys(hard).map(function (key) {
+                return hard[key];
+            })
+        },
+
         markCard: function(card, choice){
             switch (choice){
                 case EASY: //remove the card
@@ -81,6 +94,32 @@ var InnerReviewBox = React.createClass({
     }
 });
 
+var StatusBar = React.createClass({
+    render: function () {
+        return (
+            <div className="status">
+                <div id="hardItems" className="collapse">
+                    Items to review further.
+                </div>
+                <div className="navbar navbar-fixed-bottom">
+                    <div className="container-fluid">
+                        <div className="col-xs-6 text-left">
+                            Reviewed: <span className="label label-success">{cards.getTotal() - cards.getCount()}
+                            / {cards.getTotal()}</span>
+                        </div>
+                        <div className="col-xs-6 text-center">
+                            <button type="button" className="btn btn-warning"
+                                    data-toggle="collapse" data-target="#hardItems">
+                                Hard items: <span className="badge">{cards.getHardCards().length}</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+});
+
 var ReviewBox = React.createClass({
     getInitialState: function() {
         return {
@@ -145,6 +184,7 @@ var ReviewBox = React.createClass({
             <div className="reviewBox">
                 <InnerReviewBox stage={this.state.stage} card={this.state.currentCard}
                 handlers={handlers}/>
+                <StatusBar/>
             </div>
         );
     }
@@ -155,7 +195,7 @@ var ReviewBox = React.createClass({
 var FrontSide = React.createClass({
     render: function () {
         return (
-            <div className="frontSide">
+            <div className="text-center frontSide">
                 <h1>{this.props.front}</h1>
             </div>
         );
@@ -165,7 +205,7 @@ var FrontSide = React.createClass({
 var BackSide = React.createClass({
     render: function () {
         return (
-            <div className="backSide">
+            <div className="backSide text-center">
                 {this.props.back}
             </div>
         );
