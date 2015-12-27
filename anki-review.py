@@ -5,25 +5,31 @@ import os
 
 col = anki.Collection("/Users/cdong/Dropbox/cdong-ltm1/Anki/cdong/collection.anki2")
 
-data = []
 
-ids = col.findCards('"deck:Chinese characters"')
+def export_notes(collection, query, relative_path):
+    data = []
 
-for id, flds in col.db.execute("""
-select id, flds from notes
-where id in
-(select nid from cards
-where cards.id in %s)""" % ids2str(ids)):
-    item = {}
+    ids = collection.findCards(query)
 
-    # fields
-    fields = splitFields(flds)
-    item["id"] = str(id)
-    item["front"] = fields[0]
-    item["back"] = fields[1]
+    for id, flds in collection.db.execute("""
+    select id, flds from notes
+    where id in
+    (select nid from cards
+    where cards.id in %s)""" % ids2str(ids)):
+        item = {}
 
-    data.append(item)
+        # fields
+        fields = splitFields(flds)
+        item["id"] = str(id)
+        item["front"] = fields[0]
+        item["back"] = fields[1]
 
-file = open(os.path.dirname(os.path.realpath(__file__)) + "/static/data.js", "w")
-json.dump(data, file)
-file.close()
+        data.append(item)
+
+    path = os.path.join(os.path.dirname(os.path.realpath(__file__)), relative_path)
+    file = open(path, "w")
+    json.dump(data, file)
+    file.close()
+
+export_notes(col, '"deck:Chinese characters" is:due', "static/due.js")
+export_notes(col, '"deck:Chinese characters"', "static/data.js")

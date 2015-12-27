@@ -7,3 +7,17 @@ The single-page app allows me to review the cards while on commute, when the Int
 
 This project is not intended to replace Anki; I still use Anki on desktop. My main use case is to review my cards quickly and informally while on commute. The app does not update/sync with Anki database. If you want to update/sync with your Anki database, use AnkiWeb or Anki mobile app.
 
+### Screenshots
+![Question side](/Screenshot0.png)
+
+The front/question side of a card. Click "Show" button to show the answer.
+The status bar at the bottom shows the number of reviewed items (in green) and "Hard items" button. The "Hard items" button shows/hides the list of hard items (the list "Items to review further" in the screenshot); the badge number shows the number of items in the list.
+
+
+![Answer side](/Screenshot1.png)
+
+The back/answer side of the card. Use the buttons to mark your response compared to the card's answer:
+* Easy: mark the card as Reviewed and the card won't be shown again.
+* Again: the card will be shown again.
+* Hard: the card will be shown again and added to Hard list to review further later.
+
