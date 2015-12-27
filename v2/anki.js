@@ -112,8 +112,10 @@ var StatusBar = React.createClass({
                     <div className="panel-body">
                         <table className="table table-striped">
                             <thead>
-                                <td>Question</td>
-                                <td>Card ID</td>
+                                <tr>
+                                    <td>Question</td>
+                                    <td>Card ID</td>
+                                </tr>
                             </thead>
                         <tbody>
                         {hardCards}
