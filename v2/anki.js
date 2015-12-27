@@ -37,7 +37,7 @@ var cards = (function(){
                     return;
 
                 case HARD: //saved to the Hard list
-                    hard[card.front] = card;
+                    hard[card.id] = card;
                     return;
             }
         }
@@ -100,7 +100,7 @@ var StatusBar = React.createClass({
             return (
                 <tr key={card.id}>
                     <td>{card.front}</td>
-                    <td>{card.back}</td>
+                    <td>{card.id}</td>
                 </tr>
             )
         });
@@ -111,6 +111,10 @@ var StatusBar = React.createClass({
                     <div className="panel-heading">Items to review further.</div>
                     <div className="panel-body">
                         <table className="table table-striped">
+                            <thead>
+                                <td>Question</td>
+                                <td>Card ID</td>
+                            </thead>
                         <tbody>
                         {hardCards}
                         </tbody>
@@ -209,20 +213,27 @@ var ReviewBox = React.createClass({
 
 
 var FrontSide = React.createClass({
+    rawMarkup: function() {
+        var rawMarkup = this.props.front;
+        return { __html: rawMarkup };
+    },
     render: function () {
         return (
             <div className="text-center frontSide">
-                <h1>{this.props.front}</h1>
+                <h1><span dangerouslySetInnerHTML={this.rawMarkup()}/></h1>
             </div>
         );
     }
 });
 
 var BackSide = React.createClass({
+    rawMarkup: function() {
+        var rawMarkup = this.props.back;
+        return { __html: rawMarkup };
+    },
     render: function () {
         return (
-            <div className="backSide text-center">
-                {this.props.back}
+            <div className="backSide text-center" dangerouslySetInnerHTML={this.rawMarkup()}>
             </div>
         );
     }

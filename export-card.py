@@ -1,28 +1,32 @@
 import anki
-from anki.utils import ids2str, splitFields
 import json
 import os
+import re
 
 col = anki.Collection("/Users/cdong/Dropbox/cdong-ltm1/Anki/cdong/collection.anki2")
 
+styleTag = re.compile("(?i)<style>.*?</style>")
+def escapeText(text):
+    "Escape newlines, tabs, CSS and quotechar."
+    # fixme: we should probably quote fields with newlines
+    # instead of converting them to spaces
+    text = text.replace("\n", " ")
+    text = text.replace("\t", " " * 8)
+    text = styleTag.sub("", text)
+
+    return text
 
 def export_notes(collection, query, relative_path):
     data = []
 
     ids = collection.findCards(query)
 
-    for id, flds in collection.db.execute("""
-    select id, flds from notes
-    where id in
-    (select nid from cards
-    where cards.id in %s)""" % ids2str(ids)):
+    for id in ids:
         item = {}
-
-        # fields
-        fields = splitFields(flds)
+        card = col.getCard(id)
         item["id"] = str(id)
-        item["front"] = fields[0]
-        item["back"] = fields[1]
+        item["front"] = escapeText(card.q())
+        item["back"] = escapeText(card.a())
 
         data.append(item)
 
@@ -31,5 +35,5 @@ def export_notes(collection, query, relative_path):
     json.dump(data, file)
     file.close()
 
-export_notes(col, '"deck:Chinese characters" is:due', "static/due.js")
-export_notes(col, '"deck:Chinese characters"', "static/data.js")
+export_notes(col, '"deck:Chinese characters" is:due', "v2/due.js")
+export_notes(col, '"deck:Chinese characters"', "v2/data.js")
