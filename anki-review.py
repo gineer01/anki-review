@@ -31,5 +31,6 @@ def export_notes(collection, query, relative_path):
     json.dump(data, file)
     file.close()
 
-export_notes(col, '"deck:Chinese characters" is:due', "static/due.js")
-export_notes(col, '"deck:Chinese characters"', "static/data.js")
+export_notes(col, '"deck:Chinese characters" is:due', "v2/due.js")
+export_notes(col, '"deck:Chinese characters"', "v2/data.js")
+export_notes(col, '"deck:Chinese words"', "v2/words.js")
